@@ -24,10 +24,42 @@ Dybdahl Krebs et al. (2024), supp. p.10 (Note S3), print 2.07 for a case at
 K = 0.05 at every onset age. The closed form E[L | L > T] = φ(T)/K is
 2.0627128 (T = 1.6448536), which pg reproduces to 4e-16 (the closed-form
 row), and 2.0627 does not round to 2.07 (|diff| 0.0073, tolerance 0.005,
-half a unit in the last printed place). The table's other cells at the same
-K agree within that tolerance (−0.11, −0.05, −0.002 against −0.1086,
-−0.0529, −0.0017), and its k = 0.01 simple-liability cells too (2.67 and
-−0.03 against 2.6652 and −0.0269). What produced 2.07 is not established.
+half a unit in the last printed place).
+
+We take 2.07 to be a slip in the table, for these reasons:
+
+- Every other cell of the table reproduces at its printed precision:
+  - the simple-liability control at k = 0.05 (−0.1086 against −0.11);
+  - the simple-liability case and control at k = 0.01 (2.6652 and −0.0269
+    against 2.67 and −0.03);
+  - the mixture controls at k = 0.05, observed to 60, 30 and 1 (−0.10856,
+    −0.05289 and −0.00172 against −0.11, −0.05 and −0.002), and at
+    k = 0.01 (−0.02084, −0.01037 and −0.000344 against −0.02, −0.01 and
+    −0.0003), from −w φ(T)/(1 − wK) with w = CIP(age)/K;
+  - the ADT cases at onset 60, 30 and 1, at k = 0.05 (1.6449, 1.9600,
+    3.1440 against 1.64, 1.96, 3.14) and k = 0.01 (2.3263, 2.5758, 3.5879
+    against 2.33, 2.58, 3.59). These are computed as Φ⁻¹(1 − CIP(age)), a
+    reading of the ADT model inferred from the match and not checked
+    against the paper's definition.
+- The off value is a single number. All nine cells that should hold φ(T)/K
+  print 2.07: the simple model at k = 0.05 and the mixture model at both
+  k, three onset ages each. The mixture case does not depend on k.
+- Nothing natural produces 2.07:
+  - PAFGRS's `FGRS()` integrates numerically,
+    `integrate(qnorm, 1 - prev, 1) / prev` (PAFGRS `R/est_liab.R:173`,
+    commit `d272e32`). At K = 0.05 that gives 2.062713, with an
+    absolute error of 4e-7.
+  - Rounding T to 1.64 gives 2.0792, which prints as 2.08. Printing 2.07
+    needs T in [1.6412, 1.6442].
+  - Printing 2.07 at T = Φ⁻¹(1 − K) needs K in [0.0485, 0.0497], while the
+    controls fit K = 0.05.
+  - PAFGRS's scoring uses the same closed-form truncated-normal mean
+    (`R/est_liab.R:63`), so it gives 2.0627 too.
+
+The note does not say how the table was computed, so a route to 2.07 not
+listed here (a simulation, say) cannot be ruled out. Only the authors could
+confirm. The rows stay DIFF, since the published value is what they test.
+Figures recomputed in R 4.5.3 on 2026-10-21.
 
 ## D3. Polyserial and biserial rho: the standardisation divisor
 

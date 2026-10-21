@@ -19,7 +19,7 @@ Statuses:
 | Id | Rows | Result status | Status | Next step | Updated |
 |---|---|---|---|---|---|
 | D1 | `tet_empty_cell` SE vs joint-ML SE | DIFF | Accepted | None. pg withholds the SE at a boundary, which is intended; polycor's 23.36 is not a usable SE there. | 2026-10-21 |
-| D2 | `krebs` case at onset 60, 30, 1 (K = 0.05) | DIFF ×3 | Open | Find what produced the published 2.07 when the closed form gives 2.0627. One way is to run R PAFGRS (`external/PAFGRS`, commit `d272e32`) on the same one-person setup; if it also gives 2.0627, record the published value as a misprint. | 2026-10-21 |
+| D2 | `krebs` case at onset 60, 30, 1 (K = 0.05) | DIFF ×3 | Accepted | None. The printed 2.07 is taken as a slip for 2.0627: every other cell of the Note S3 table reproduces at its printed precision, and no rounding of T or K, nor PAFGRS's numerical integration, gives 2.07 (`differences.md` D2). pg passes the closed-form row. Only the authors could settle it. | 2026-10-21 |
 | D3 | `polyserial`, `biserial` rho | DIFF ×2 | Open | Decide whether pg-phenotype keeps the 1/N standardisation or moves to n − 1 to match polycor. The gap is O(1/n) and is fully explained (`docs/c3_divisor.R`), but there is no fixed factor, so C3 cannot close it. If pg keeps 1/N, mark this Accepted. | 2026-10-21 |
 | G1 | `relative_pair_se` | GAP | Blocked | Waits on [rwaples/pg-phenotype#25](https://github.com/rwaples/pg-phenotype/issues/25) (per-entry influence output). Once released, add the vcovCL two-way check. | 2026-10-21 |
 | G2 | `krebs` k = 0.01 mixture column | GAP | Accepted | None while pg's `Cip` takes K from its last value. Reopen if pg-phenotype adds a threshold separate from the CIP. | 2026-10-21 |
@@ -28,4 +28,4 @@ Statuses:
 | I2 | `poly_3x4`, `poly_4x4` SE vs joint-ML and fixed-threshold SE | INFO ×4 | Info | None; no outside oracle computes pg's two-step sandwich on an r × s table. | 2026-10-21 |
 | I3 | `polyserial`, `biserial` SE vs polycor two-step SE | INFO ×2 | Info | None; polycor's SE is an inverse Hessian with the thresholds fixed, not a sandwich. | 2026-10-21 |
 
-Open: D2, D3. Blocked: G1.
+Open: D3. Blocked: G1.
