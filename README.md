@@ -5,7 +5,8 @@ Runs both bindings of [pg-phenotype](https://github.com/rwaples/pg-phenotype)
 compares each result with an outside reference implementation (an *oracle*)
 or a published value. The latest results are in
 [`results/results.md`](results/results.md); every row that is not PASS is
-explained in [`differences.md`](differences.md).
+explained in [`differences.md`](differences.md), and where each one stands
+(open, blocked, accepted) is tracked in [`status.md`](status.md).
 
 ## Run it
 
@@ -106,6 +107,7 @@ oracles/*.R       one script per oracle package; _io.R holds the JSON interface
 conversions.py    the closed list of declared conversions (C1, C2; C3 reserved)
 make_inputs.py    the seeded generator of inputs/*.tsv.gz
 differences.md    every DIFF, GAP and INFO row explained
+status.md         where each non-PASS row stands and what would close it
 docs/adr/         decisions; GLOSSARY.md the terms
 ```
 

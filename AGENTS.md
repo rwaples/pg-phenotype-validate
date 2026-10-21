@@ -9,6 +9,8 @@ published values. Terms are in GLOSSARY.md, decisions in docs/adr/.
 - Tolerances are the oracle's precision; never widen one to make a row
   pass. A new convention gap needs an exact factor in conversions.py, or a
   DIFF entry in differences.md.
+- Every non-PASS row has an entry in status.md; update it when a run
+  changes a row's result or a follow-up lands.
 - After changing a generator, `pixi run make-inputs` and update each
   sha256 in cases.yaml.
 - Don't commit the local-checkout override in pixi.toml.
