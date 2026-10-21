@@ -72,18 +72,39 @@ Figures recomputed in R 4.5.3 on 2026-10-21.
 
 pg standardises the continuous side with the 1/N variance
 (pg-phenotype `docs/assortative-mating.md`, Estimators); polycor uses
-`scale()`, the n − 1 one. [`docs/c3_divisor.R`](docs/c3_divisor.R) refits
-polycor's own two-step likelihood with `optimize(tol = 1e-14)`:
+`scale()`, the n − 1 one. [`docs/c3_divisor.R`](docs/c3_divisor.R)
+maximises the two-step likelihood (Olsson, Drasgow & Dorans 1982, eqs.
+19–20), with polycor's first-step thresholds, by `optimize()`. The
+likelihood is flat in rho at about 1e-8 in double precision, so these fits
+are good to about 1e-8, not to `optimize()`'s tol of 1e-14:
 
-- with `scale(x)` it gives 0.385279654 and 0.285017776, so polycor's BFGS
+- with `scale(x)` it gives 0.385279642 and 0.285017785, so polycor's BFGS
   is within 2e-7 of its optimum and the gap is not its precision;
-- with the 1/N standardisation it gives 0.384970222 and 0.284759526,
-  within 1.3e-8 of pg.
+- with the 1/N standardisation it gives 0.384970228 and 0.284759538,
+  within 1e-8 of pg, which is as close as these fits can show.
 
 The divisor explains the whole gap, but not by a fixed factor: the ratio of
 the two fits is 0.9991969 in one case and 0.9990939 in the other, and
-sqrt((n − 1)/n) is 0.9989995. So C3 stays reserved and these rows are DIFF.
-The gap is O(1/n).
+sqrt((n − 1)/n) is 0.9989995. Rescaling the probit slope ρ/√(1 − ρ²) by
+sqrt((n − 1)/n) instead predicts pg's values only to 1.9e-5 and 3.8e-6,
+because the thresholds stay at the marginal values while z is rescaled. So
+C3 stays reserved and these rows are DIFF. The gap is O(1/n), against pg SEs
+of 0.039 and 0.062 (the `SE vs polycor two-step SE` rows of
+[`results/results.md`](results/results.md)).
+
+pg's divisor is the definition's. Olsson, Drasgow & Dorans (1982; full
+reference below) define
+the two-step estimator by estimating the mean and variance of X with
+F₃ = σ² − (1/N) Σ (xᵢ − X̄)² = 0 (eq. 36, p.344), the 1/N variance, before
+maximising the likelihood (eq. 20, p.342) in ρ alone. polycor's `scale()`
+is a choice of its own. pg-phenotype standardises with 1/N
+(pg-phenotype `docs/assortative-mating.md`, Estimators), so D3 is accepted
+([`status.md`](status.md)). It reopens if pg-phenotype changes that
+divisor. Equations and pages checked against the paper's PDF on
+2026-10-21.
+
+Olsson U, Drasgow F, Dorans NJ (1982). The polyserial correlation
+coefficient. *Psychometrika* 47(3):337–347. doi:10.1007/BF02294164.
 
 ## G1. Relative-Pair Correlation SE
 
