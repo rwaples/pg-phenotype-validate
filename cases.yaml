@@ -193,7 +193,7 @@ cases:
       - label: Relative-Pair Correlation two-way cluster SE
         expect: gap
         id: G1
-        note: no per-entry influence output to rebuild it from (pg-phenotype issue to be filed)
+        note: no per-entry influence output to rebuild it from (pg-phenotype#25)
 
   # ------------------------------------------------------------ Krebs et al. 2024, supp. Note S3
   - id: krebs

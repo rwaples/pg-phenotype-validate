@@ -58,7 +58,8 @@ The gap is O(1/n).
 pg-phenotype's Relative-Pair Correlation reports no per-pair or per-entry
 influence (pairs are never stored; pg-phenotype ADR 0013), so its two-way
 cluster SE cannot be rebuilt by an outside sandwich. The row waits on a
-pg-phenotype issue asking for opt-in per-entry influence output (member ids,
+pg-phenotype issue, [rwaples/pg-phenotype#25](https://github.com/rwaples/pg-phenotype/issues/25),
+asking for opt-in per-entry influence output (member ids,
 MRCA key, influence).
 
 ## G2. The PA-FGRS mixture column at k = 0.01

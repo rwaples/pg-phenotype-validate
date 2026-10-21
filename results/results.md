@@ -65,7 +65,7 @@ pg-phenotype 0.5.0 (Python, core 0a79c4e72f12); pgphenotype 0.5.0 (R, core 0a79c
 | po_remating | stratum 1: midparent Mate Networks | 205 |  |  | 205 | 205 | 0 | 0 | PASS |  | generator labels |  |
 | po_remating | stratum 0: father cluster SE | 0.07582524007912578 |  |  | 0.07582524007912585 | 0.07582524007912585 | 6.94e-17 | 1e-10 | PASS |  | vcovCL(type = HC0, cadjust = TRUE) |  |
 | po_remating | stratum 0: father Mate Networks | 207 |  |  | 207 | 207 | 0 | 0 | PASS |  | generator labels |  |
-| relative_pair_se | Relative-Pair Correlation two-way cluster SE |  |  |  |  |  |  |  | GAP | G1 |  | no per-entry influence output to rebuild it from (pg-phenotype issue to be filed) |
+| relative_pair_se | Relative-Pair Correlation two-way cluster SE |  |  |  |  |  |  |  | GAP | G1 |  | no per-entry influence output to rebuild it from (pg-phenotype#25) |
 | krebs | closed form: control observed to 60, K = 0.05 | -0.10856383197407503 |  |  | -0.10856383197407529 | -0.10856383197407529 | 2.64e-16 | 1e-10 | PASS |  | -phi(T)/(1-K) |  |
 | krebs | closed form: control observed to 30, K = 0.05 | -0.052890071987369884 |  |  | -0.0528900719873701 | -0.0528900719873701 | 2.15e-16 | 1e-10 | PASS |  | -w phi(T)/(1-wK), w = 0.5 |  |
 | krebs | closed form: control observed to 1, K = 0.05 | -0.0017203609737343 |  |  | -0.001720360973734153 | -0.001720360973734153 | 1.47e-16 | 1e-10 | PASS |  | -w phi(T)/(1-wK), w = 1/60 |  |

@@ -1,4 +1,4 @@
-<!-- Draft for rwaples/pg-phenotype. Title: Opt-in per-entry influence output for the Relative-Pair Correlation SE -->
+<!-- Filed as rwaples/pg-phenotype#25 on 2026-10-21. Title: Opt-in per-entry influence output for the Relative-Pair Correlation SE -->
 
 ## What
 
