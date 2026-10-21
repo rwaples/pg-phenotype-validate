@@ -1,0 +1,45 @@
+# pg-phenotype-validate: checks pg-phenotype against outside reference
+# implementations (oracles) and published values.
+#
+# Both pg-phenotype bindings are pinned to the v0.5.0 release pair: the PyPI
+# wheel here and the R source tarball in pgphenotype.pin, which r-setup
+# installs into .r-lib/. To check a local checkout instead (do NOT commit):
+#   pg-phenotype = { path = "../pg-phenotype", editable = true }
+# and `PGP_VALIDATE_R_TARBALL=/path/to/pgphenotype_<ver>.tar.gz pixi run harness`
+# with a tarball from that checkout's tools/r_build_tarball.sh. The preflight
+# then requires the two bindings to report the same core rev.
+[workspace]
+name = "pg-phenotype-validate"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+requires-pixi = ">=0.82,<0.83"
+
+[dependencies]
+python = "3.14.*"
+ruff = "0.17.*"
+numpy = "*"
+scipy = "*"     # closed-form Krebs rows; pg-phenotype itself needs only numpy
+pyyaml = "*"
+r-base = "4.5.*"
+rust = ">=1.85"  # the R tarball compiles its vendored crates
+c-compiler = "*"
+make = "*"
+r-polycor = "*"
+r-psych = "*"
+r-sandwich = "*"
+r-survival = "*"
+r-cmprsk = "*"
+r-jsonlite = "*"
+
+[pypi-dependencies]
+pg-phenotype = "==0.5.0"
+
+[activation.env]
+R_LIBS_USER = "$PIXI_PROJECT_ROOT/.r-lib"
+
+[tasks]
+r-setup = { cmd = "python run_oracles.py --install-r", description = "Install the pinned pgphenotype R tarball into .r-lib/" }
+harness = { cmd = "python run_oracles.py", depends-on = ["r-setup"], description = "Run every case and write results/" }
+make-inputs = { cmd = "python make_inputs.py", description = "Regenerate inputs/*.tsv.gz" }
+verify-inputs = { cmd = "python make_inputs.py --verify", description = "Regenerate inputs into a temp dir and compare sha256 with cases.yaml" }
+lint = { cmd = "ruff check && ruff format --check", description = "Lint and format check" }

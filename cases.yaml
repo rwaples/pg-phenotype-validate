@@ -1,0 +1,243 @@
+# The cases pg-phenotype is checked on, and each case's checks.
+#
+# Case keys:
+#   id        unique; names the case in results
+#   family    tetrachoric | mate | parent_offspring | krebs | aalen_johansen | gap
+#   table     tetrachoric: the 2 x 2 counts [[n00, n01], [n10, n11]], literal
+#   input     {file, sha256}: a committed inputs/*.tsv.gz from make_inputs.py;
+#             the harness refuses a file whose sha256 differs
+#   kinds     mate: the trait kinds of columns t0 (and t1)
+#   cell      mate: [mother trait, father trait] of the cell read
+#   stratified  parent_offspring: also fit within each `stratum`
+#   scenarios krebs: name -> {K, cip_age, status, age}: a two-row MZ pedigree
+#             at h2 = 1 whose co-twin has this status and age, under a CIP
+#             linear from 0 at age 0 to K at cip_age
+#   checks    the rows of results (below)
+#
+# Check keys:
+#   label     the row's text
+#   quantity  the pg result compared (both bindings use the same names)
+#   ref       where the reference comes from:
+#               {oracle: <script>.<key>}  an oracles/<script>.R output
+#               {value: <x>}              a published value
+#               {context: <name>}         a count from the case's own construction
+#               {closed_form: krebs}      computed by run_oracles.py (scipy)
+#   tol       absolute, or relative with `relative: true`
+#   conversion  an id from conversions.py, applied to the reference
+#   expect    pass (default) | diff | info | gap; diff and gap need an `id`
+#             in differences.md
+#   source, note
+
+tetrachoric_checks: &tet
+  - label: rho, two-step
+    quantity: rho
+    ref: {oracle: polycor.rho_2step}
+    tol: 2.0e-4
+    source: "polycor::polychor(tab, ML = FALSE)"
+    note: polycor's optimise() tolerance (ADR 0001, decision 2)
+  - label: SE vs joint-ML SE
+    quantity: se
+    ref: {oracle: polycor.se_ml}
+    conversion: C1
+    tol: 1.0e-3
+    relative: true
+    source: "polycor::polychor(tab, ML = TRUE, std.err = TRUE)"
+    note: just identified on a 2 x 2 table, so the joint-ML SE is the two-step one
+  - label: SE vs fixed-threshold SE (negative control)
+    quantity: se
+    ref: {oracle: polycor.se_fixed}
+    tol: 0
+    expect: info
+    source: "polycor::polychor(tab, ML = FALSE, std.err = TRUE)"
+    note: ignores the thresholds' uncertainty; expected below pg's SE
+
+cases:
+  # ------------------------------------------------------------ tetrachoric
+  - {id: tet_balanced, family: tetrachoric, table: [[400, 100], [100, 400]], checks: *tet}
+  - {id: tet_skewed, family: tetrachoric, table: [[1700, 60], [45, 25]], checks: *tet}
+  - {id: tet_negative, family: tetrachoric, table: [[150, 300], [280, 120]], checks: *tet}
+  - {id: tet_small, family: tetrachoric, table: [[14, 6], [7, 13]], checks: *tet}
+  - {id: tet_cell_of_one, family: tetrachoric, table: [[50, 20], [1, 9]], checks: *tet}
+  - id: tet_empty_cell
+    family: tetrachoric
+    table: [[45, 0], [15, 20]]
+    checks:
+      - {label: boundary flag, quantity: boundary, ref: {value: true}, tol: 0, source: "pg-phenotype correlation.rs:149-151"}
+      - label: rho, two-step
+        quantity: rho
+        ref: {oracle: polycor.rho_2step}
+        tol: 2.0e-4
+        source: "polycor::polychor(tab, ML = FALSE)"
+      - label: SE vs joint-ML SE
+        quantity: se
+        ref: {oracle: polycor.se_ml}
+        conversion: C1
+        tol: 1.0e-3
+        relative: true
+        expect: diff
+        id: D1
+        source: "polycor::polychor(tab, ML = TRUE, std.err = TRUE)"
+        note: pg withholds the SE at a boundary
+
+  # ------------------------------------------------------------ polychoric, polyserial, biserial
+  - id: poly_3x4
+    family: mate
+    input: {file: inputs/mate_ordinal_3x4.tsv.gz, sha256: cf95f6b3dbe78b1a60e2b83fdf5c2d59b76e1efcb72ea8ec51568164194d9931}
+    kinds: [ordinal, ordinal]
+    cell: [0, 1]
+    checks: &poly
+      - {label: estimator, quantity: estimator, ref: {value: polychoric}, tol: 0}
+      - {label: Mate Networks (one pair each), quantity: n_mate_networks, ref: {context: G}, tol: 0}
+      - label: rho vs polycor two-step
+        quantity: rho
+        ref: {oracle: polycor.rho_2step}
+        tol: 2.0e-4
+        source: "polycor::polychor(tab, ML = FALSE)"
+      - label: rho vs psych
+        quantity: rho
+        ref: {oracle: psych.rho}
+        tol: 2.0e-4
+        source: "psych::polychoric(correct = 0, global = FALSE)"
+      - label: SE vs joint-ML SE
+        quantity: se
+        ref: {oracle: polycor.se_ml}
+        conversion: C2
+        tol: 0
+        relative: true
+        expect: info
+        source: "polycor::polychor(tab, ML = TRUE, std.err = TRUE)"
+        note: joint ML, a different estimator on an r x s table (D11)
+      - label: SE vs fixed-threshold SE
+        quantity: se
+        ref: {oracle: polycor.se_fixed}
+        conversion: C2
+        tol: 0
+        relative: true
+        expect: info
+        source: "polycor::polychor(tab, ML = FALSE, std.err = TRUE)"
+        note: thresholds held fixed, a different estimator (D11)
+  - id: poly_4x4
+    family: mate
+    input: {file: inputs/mate_ordinal_4x4.tsv.gz, sha256: 6d97edbdd57af6dd1e62709fe5beedf35aa176f98cf7dd902d2ea530b0755b1d}
+    kinds: [ordinal, binary]
+    cell: [0, 0]
+    checks: *poly
+  - id: polyserial
+    family: mate
+    input: {file: inputs/mate_polyserial.tsv.gz, sha256: 0006f239052443ad3070e789af6b857686417018de039c76f315d58691ecdd98}
+    kinds: [continuous, ordinal]
+    cell: [0, 1]
+    checks:
+      - {label: estimator, quantity: estimator, ref: {value: polyserial}, tol: 0}
+      - &serial_rho
+        label: rho vs polycor two-step polyserial
+        quantity: rho
+        ref: {oracle: polycor.serial_rho}
+        tol: 2.0e-4
+        expect: diff
+        id: D3
+        source: "polycor::polyserial(x, y, ML = FALSE, std.err = TRUE)$rho"
+        note: pg standardises with 1/N, polycor with scale() (n - 1); no exact factor, so C3 stays reserved
+      - &serial_se
+        label: SE vs polycor two-step SE
+        quantity: se
+        ref: {oracle: polycor.serial_se}
+        conversion: C2
+        tol: 0
+        relative: true
+        expect: info
+        source: "polycor::polyserial(x, y, ML = FALSE, std.err = TRUE)"
+        note: inverse Hessian with thresholds fixed, not a sandwich (D11)
+  - id: biserial
+    family: mate
+    input: {file: inputs/mate_biserial.tsv.gz, sha256: 9d7d387ea92d3638482fd2ed7c24e141e811ebb1e5fe1a545278624457631208}
+    kinds: [continuous, binary]
+    cell: [0, 1]
+    checks:
+      - {label: estimator, quantity: estimator, ref: {value: biserial}, tol: 0}
+      - *serial_rho
+      - *serial_se
+
+  # ------------------------------------------------------------ parent-offspring cluster SE
+  - id: po_remating
+    family: parent_offspring
+    input: {file: inputs/po_remating.tsv.gz, sha256: 3ac9daeeb89d7003df46386d470d5b055e594c6c0415228588ba525061d74b09}
+    stratified: true
+    checks:
+      - {label: midparent slope, quantity: pooled.midparent.slope, ref: {oracle: sandwich.pooled.midparent.slope}, tol: 1.0e-10, source: "coef(lm(child ~ x))"}
+      - {label: midparent se_ols, quantity: pooled.midparent.se_ols, ref: {oracle: sandwich.pooled.midparent.se_ols}, tol: 1.0e-10, source: "summary(lm)"}
+      - {label: midparent cluster SE, quantity: pooled.midparent.se, ref: {oracle: sandwich.pooled.midparent.se_cl}, tol: 1.0e-10, source: "vcovCL(type = HC0, cadjust = TRUE)"}
+      - {label: midparent n, quantity: pooled.midparent.n, ref: {oracle: sandwich.pooled.midparent.n}, tol: 0}
+      - {label: midparent Mate Networks, quantity: pooled.midparent.n_mate_networks, ref: {context: pooled.midparent.G}, tol: 0, source: generator labels}
+      - {label: mother slope, quantity: pooled.mother.slope, ref: {oracle: sandwich.pooled.mother.slope}, tol: 1.0e-10, source: "coef(lm(child ~ x))"}
+      - {label: mother se_ols, quantity: pooled.mother.se_ols, ref: {oracle: sandwich.pooled.mother.se_ols}, tol: 1.0e-10, source: "summary(lm)"}
+      - {label: mother cluster SE, quantity: pooled.mother.se, ref: {oracle: sandwich.pooled.mother.se_cl}, tol: 1.0e-10, source: "vcovCL(type = HC0, cadjust = TRUE)"}
+      - {label: mother n, quantity: pooled.mother.n, ref: {oracle: sandwich.pooled.mother.n}, tol: 0}
+      - {label: mother Mate Networks, quantity: pooled.mother.n_mate_networks, ref: {context: pooled.mother.G}, tol: 0, source: generator labels}
+      - {label: father slope, quantity: pooled.father.slope, ref: {oracle: sandwich.pooled.father.slope}, tol: 1.0e-10, source: "coef(lm(child ~ x))"}
+      - {label: father se_ols, quantity: pooled.father.se_ols, ref: {oracle: sandwich.pooled.father.se_ols}, tol: 1.0e-10, source: "summary(lm)"}
+      - {label: father cluster SE, quantity: pooled.father.se, ref: {oracle: sandwich.pooled.father.se_cl}, tol: 1.0e-10, source: "vcovCL(type = HC0, cadjust = TRUE)"}
+      - {label: father n, quantity: pooled.father.n, ref: {oracle: sandwich.pooled.father.n}, tol: 0}
+      - {label: father Mate Networks, quantity: pooled.father.n_mate_networks, ref: {context: pooled.father.G}, tol: 0, source: generator labels}
+      - {label: "stratum 1: midparent slope", quantity: s1.midparent.slope, ref: {oracle: sandwich.s1.midparent.slope}, tol: 1.0e-10, source: "coef(lm(child ~ x))"}
+      - {label: "stratum 1: midparent se_ols", quantity: s1.midparent.se_ols, ref: {oracle: sandwich.s1.midparent.se_ols}, tol: 1.0e-10, source: "summary(lm)"}
+      - {label: "stratum 1: midparent cluster SE", quantity: s1.midparent.se, ref: {oracle: sandwich.s1.midparent.se_cl}, tol: 1.0e-10, source: "vcovCL(type = HC0, cadjust = TRUE)"}
+      - {label: "stratum 1: midparent Mate Networks", quantity: s1.midparent.n_mate_networks, ref: {context: s1.midparent.G}, tol: 0, source: generator labels}
+      - {label: "stratum 0: father cluster SE", quantity: s0.father.se, ref: {oracle: sandwich.s0.father.se_cl}, tol: 1.0e-10, source: "vcovCL(type = HC0, cadjust = TRUE)"}
+      - {label: "stratum 0: father Mate Networks", quantity: s0.father.n_mate_networks, ref: {context: s0.father.G}, tol: 0, source: generator labels}
+
+  # ------------------------------------------------------------ relative-pair SE
+  - id: relative_pair_se
+    family: gap
+    checks:
+      - label: Relative-Pair Correlation two-way cluster SE
+        expect: gap
+        id: G1
+        note: no per-entry influence output to rebuild it from (pg-phenotype issue to be filed)
+
+  # ------------------------------------------------------------ Krebs et al. 2024, supp. Note S3
+  - id: krebs
+    family: krebs
+    scenarios:
+      control_60: {K: 0.05, cip_age: 60, status: 0, age: 60}
+      control_30: {K: 0.05, cip_age: 60, status: 0, age: 30}
+      control_1: {K: 0.05, cip_age: 60, status: 0, age: 1}
+      case_60: {K: 0.05, cip_age: 60, status: 1, age: 60}
+      case_30: {K: 0.05, cip_age: 60, status: 1, age: 30}
+      case_1: {K: 0.05, cip_age: 60, status: 1, age: 1}
+      control_60_k01: {K: 0.01, cip_age: 60, status: 0, age: 60}
+      case_60_k01: {K: 0.01, cip_age: 60, status: 1, age: 60}
+    checks:
+      - {label: "closed form: control observed to 60, K = 0.05", quantity: control_60, ref: {closed_form: krebs}, tol: 1.0e-10, source: "-phi(T)/(1-K)"}
+      - {label: "closed form: control observed to 30, K = 0.05", quantity: control_30, ref: {closed_form: krebs}, tol: 1.0e-10, source: "-w phi(T)/(1-wK), w = 0.5"}
+      - {label: "closed form: control observed to 1, K = 0.05", quantity: control_1, ref: {closed_form: krebs}, tol: 1.0e-10, source: "-w phi(T)/(1-wK), w = 1/60"}
+      - {label: "closed form: case, K = 0.05", quantity: case_60, ref: {closed_form: krebs}, tol: 1.0e-10, source: "phi(T)/K"}
+      - {label: "closed form: control observed to 60, K = 0.01", quantity: control_60_k01, ref: {closed_form: krebs}, tol: 1.0e-10, source: "-phi(T)/(1-K)"}
+      - {label: "closed form: case, K = 0.01", quantity: case_60_k01, ref: {closed_form: krebs}, tol: 1.0e-10, source: "phi(T)/K"}
+      - {label: "PA-FGRS k = 0.05: control observed to 60", quantity: control_60, ref: {value: -0.11}, tol: 0.005, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.05: control observed to 30", quantity: control_30, ref: {value: -0.05}, tol: 0.005, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.05: control observed to 1", quantity: control_1, ref: {value: -0.002}, tol: 0.0005, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.05: case, onset 60", quantity: case_60, ref: {value: 2.07}, tol: 0.005, expect: diff, id: D2, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.05: case, onset 30", quantity: case_30, ref: {value: 2.07}, tol: 0.005, expect: diff, id: D2, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.05: case, onset 1", quantity: case_1, ref: {value: 2.07}, tol: 0.005, expect: diff, id: D2, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "simple liability k = 0.01: control", quantity: control_60_k01, ref: {value: -0.03}, tol: 0.005, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "simple liability k = 0.01: case", quantity: case_60_k01, ref: {value: 2.67}, tol: 0.005, source: "Krebs 2024 supp. p.10, Note S3"}
+      - {label: "PA-FGRS k = 0.01 (mixture, true K = 0.05)", expect: gap, id: G2, source: "Krebs 2024 supp. p.10, Note S3", note: "pg's Cip takes K from its last value"}
+
+  # ------------------------------------------------------------ Aalen-Johansen
+  - id: aj_ties
+    family: aalen_johansen
+    input: {file: inputs/aj_ties.tsv.gz, sha256: d1c9e83944af8659783d101c81e563d7307780811878b64ea746b3e914d44f8b}
+    checks: &aj
+      - {label: case ages vs survfit, quantity: ages, ref: {oracle: survival.ages}, tol: 0}
+      - {label: CIF vs survfit, quantity: cip, ref: {oracle: survival.cip}, tol: 1.0e-12, relative: true, source: "survfit(Surv(age, status) ~ 1, timefix = FALSE)"}
+      - {label: case ages vs cuminc, quantity: ages, ref: {oracle: cmprsk.ages}, tol: 0}
+      - {label: CIF vs cuminc, quantity: cip, ref: {oracle: cmprsk.cip}, tol: 1.0e-12, source: "timepoints(cuminc(age, status, cencode = 0), ages)"}
+  - {id: aj_no_deaths, family: aalen_johansen, input: {file: inputs/aj_no_deaths.tsv.gz, sha256: eb7332faf5d67431a414e35f958a14739c3d8ca5fd2cd2885bc1f3e54e57b0e1}, checks: *aj}
+  - id: aj_late_entry
+    family: aalen_johansen
+    input: {file: inputs/aj_late_entry.tsv.gz, sha256: 78082ef102ff0efd048f3d8dc7fd098a841477adb94ba3e791b66ebee820ee98}
+    checks:
+      - {label: case ages vs survfit, quantity: ages, ref: {oracle: survival.ages}, tol: 0}
+      - {label: CIF vs survfit, quantity: cip, ref: {oracle: survival.cip}, tol: 1.0e-12, relative: true, source: "survfit(Surv(entry, age, status) ~ 1, id, timefix = FALSE)"}
+      - {label: CIF vs cuminc, expect: gap, id: G3, source: "args(cmprsk::cuminc)", note: cuminc takes no late entry (D12)}

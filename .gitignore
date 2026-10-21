@@ -1,0 +1,11 @@
+# pixi env
+.pixi/
+
+# The pinned pgphenotype R package and its download (pixi run r-setup)
+.r-lib/
+
+# Per-run JSON exchanged with Rscript
+.work/
+
+__pycache__/
+.ruff_cache/
