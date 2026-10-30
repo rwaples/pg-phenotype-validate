@@ -1,7 +1,7 @@
 # pg-phenotype-validate: checks pg-phenotype against outside reference
 # implementations (oracles) and published values.
 #
-# Both pg-phenotype bindings are pinned to the v0.5.0 release pair: the PyPI
+# Both pg-phenotype bindings are pinned to the v0.6.0 release pair: the PyPI
 # wheel here and the R source tarball in pgphenotype.pin, which r-setup
 # installs into .r-lib/. To check a local checkout instead (do NOT commit):
 #   pg-phenotype = { path = "../pg-phenotype", editable = true }
@@ -32,7 +32,7 @@ r-cmprsk = "*"
 r-jsonlite = "*"
 
 [pypi-dependencies]
-pg-phenotype = "==0.5.0"
+pg-phenotype = "==0.6.0"
 
 [activation.env]
 R_LIBS_USER = "$PIXI_PROJECT_ROOT/.r-lib"
