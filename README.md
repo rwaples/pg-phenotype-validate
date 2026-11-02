@@ -28,9 +28,9 @@ any row is FAIL or ERROR. There is no CI.
 
 ### Checking a local pg-phenotype checkout
 
-Both bindings are pinned to the v0.6.0 release pair: PyPI
-`pg-phenotype==0.6.0` in `pixi.toml` and the GitHub release asset
-`pgphenotype_0.6.0.tar.gz`. To check a candidate instead, without committing
+Both bindings are pinned to the v0.6.1 release pair: PyPI
+`pg-phenotype==0.6.1` in `pixi.toml` and the GitHub release asset
+`pgphenotype_0.6.1.tar.gz`. To check a candidate instead, without committing
 the change:
 
 1. In `pixi.toml`, replace the `pg-phenotype` entry with
@@ -41,7 +41,7 @@ the change:
 
 The preflight then requires the two bindings to link the same
 pedigree-graph-core revision instead of the pinned version. Without the
-override it refuses to run unless both report 0.6.0.
+override it refuses to run unless both report 0.6.1.
 
 ## What it does
 

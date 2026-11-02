@@ -1,5 +1,5 @@
-# The pgphenotype R source tarball of the v0.6.0 release, the R half of the
-# release pair (the Python half is pixi.toml's pg-phenotype==0.6.0).
-version: 0.6.0
-url: https://github.com/rwaples/pg-phenotype/releases/download/v0.6.0/pgphenotype_0.6.0.tar.gz
-sha256: b085f5ec557fd86f7c510d40fcc18f58590b128e00c41642ddd11b217c0d0b83
+# The pgphenotype R source tarball of the v0.6.1 release, the R half of the
+# release pair (the Python half is pixi.toml's pg-phenotype==0.6.1).
+version: 0.6.1
+url: https://github.com/rwaples/pg-phenotype/releases/download/v0.6.1/pgphenotype_0.6.1.tar.gz
+sha256: 019ff0b7eefa1ca7ae2c9b19c351d8a97a0ea9307ad8143ff56588660e9f1130

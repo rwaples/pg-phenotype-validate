@@ -133,7 +133,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-unknown-linux-gnu-1.99.0-h480d76f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.28-h4ee821c_9.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
-      - pypi: https://files.pythonhosted.org/packages/8f/d7/68ac26a63f15ad3eae3bad14dca39a9c79e61a420b3186d9445677a38dc7/pg_phenotype-0.6.0-cp313-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/7c/e4/ad0aee3a1572704186ca64a260f67fd2fff4d1206d9bbf73caf71a98ce7c/pg_phenotype-0.6.1-cp313-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -1945,10 +1945,10 @@ packages:
   run_exports: {}
   size: 118849
   timestamp: 1784250406640
-- pypi: https://files.pythonhosted.org/packages/8f/d7/68ac26a63f15ad3eae3bad14dca39a9c79e61a420b3186d9445677a38dc7/pg_phenotype-0.6.0-cp313-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+- pypi: https://files.pythonhosted.org/packages/7c/e4/ad0aee3a1572704186ca64a260f67fd2fff4d1206d9bbf73caf71a98ce7c/pg_phenotype-0.6.1-cp313-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
   name: pg-phenotype
-  version: 0.6.0
-  sha256: 52cb3fc7bc21d014cf38dc040a6e4eaf17ffd1e1b72620df75a51e1bd977ed79
+  version: 0.6.1
+  sha256: 65aec80ad7f29f60de3bac8cea1df0512aa3b933dfe1144b4b662386822595af
   requires_dist:
   - numpy>=2.2,<3
   - scipy>=1.14,<2 ; extra == 'test'
